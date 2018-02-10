@@ -534,7 +534,6 @@ function! s:switch_tab(n, confirm)
   " set nohidden to trigger confirm behavior
   let hidden = &hidden
   let &hidden = 0
-
   if a:n < 0
     execute a:confirm ? 'confirm enew' : 'enew!'
   else
@@ -623,20 +622,9 @@ endfunction
 
 " delete buffer from buflist if it isn't attached to any wintab
 function! s:purge(buffer)
-  if !buflisted(a:buffer)
-    return
-  endif
-  for tabpage in range(1, tabpagenr('$'))
-    if index(tabpagebuflist(tabpage), a:buffer) != -1
-      return
-    endif
-    for window in range(1, tabpagewinnr(tabpage, '$'))
-      if s:is_in_buflist(tabpage, window, a:buffer)
-        return
-      endif
-    endfor
-  endfor
-  execute 'bdelete '.a:buffer
+  " It's not clear if the buffer is already unlisted/deleted since
+  " nonnamed buffers might be deleted by default when we switch away
+  " from them.
 endfunction
 
 " count in how many windows in all vimtabs a buffer is shown
