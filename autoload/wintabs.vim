@@ -622,9 +622,20 @@ endfunction
 
 " delete buffer from buflist if it isn't attached to any wintab
 function! s:purge(buffer)
-  " It's not clear if the buffer is already unlisted/deleted since
-  " nonnamed buffers might be deleted by default when we switch away
-  " from them.
+  if !buflisted(a:buffer)
+    return
+  endif
+  for tabpage in range(1, tabpagenr('$'))
+    if index(tabpagebuflist(tabpage), a:buffer) != -1
+      return
+    endif
+    for window in range(1, tabpagewinnr(tabpage, '$'))
+      if s:is_in_buflist(tabpage, window, a:buffer)
+        return
+      endif
+    endfor
+  endfor
+  execute 'bdelete '.a:buffer
 endfunction
 
 " count in how many windows in all vimtabs a buffer is shown
